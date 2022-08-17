@@ -10,7 +10,7 @@ from playwright.sync_api import Page, expect
 from selenium import webdriver
 
 def findPost(subreddit):
-    print(subreddit)
+    print("Now searching through the " + subreddit + " subreddit")
     url = 'https://www.reddit.com/r/' + subreddit + "/comments/"
     # check if subreddit exists
     if req.get(url).status_code == 404:
@@ -53,6 +53,7 @@ def findComments(postLinks):
     text = text.replace('<em class="_7s4syPYtk5hfUIjySXcRE">who/whom</em> ', '')
     text = text.replace('[<p class="_1qeIAgB0cPwnLhDF9XSiJM">', '')
     text = text.replace('<em class="_7s4syPYtk5hfUIjySXcRE">', '')
+    text = text.replace('<a class="_3t5uN8xUmg0TOwRCOGQEcU"', '')
     print(text)
     # remove https://reddit.com/r/
     name = postLinks.replace('https://reddit.com/r/', '') + ".txt"
@@ -67,12 +68,15 @@ def findComments(postLinks):
 def txtToSpeech(name):
     name = name.replace('https://reddit.com/r/', '')
     name = name.replace('/', '_')
-    # open name.txt and read text
+    # open file and save text
     with open(name + ".txt", 'r', encoding="utf8") as f:
         text = f.read()
-    lan = "en"
-    audioFile = gTTS(text=text, lang=lan , slow=False)
-    audioFile.save(name + ".mp3")
+    # convert text to speech
+    print("TExt is " + text)
+    text = str(text)
+    tts = gTTS(text=text, lang='en')
+    tts.save(name + ".mp3")
+    print("text has been converted to speech")
 
 def randomVideo(name):
     print("getting random video")
@@ -89,7 +93,7 @@ def randomVideo(name):
         f.write(data)
     print("video has been saved")
 
-def chosseFiles():
+def savefile():
     print("We have now generated all of the text files and the audio files and found a video file now we have to chosse whether we went this data or not")
     # search through files and find only .txt
     files = os.listdir()
@@ -103,39 +107,18 @@ def chosseFiles():
             print("reddit.txt has been found")
             return 0
         Filename = file.replace(".txt", "")
-        # open filename.mp4
-        os.startfile(Filename + ".mp4")
-        # open filename.mp3
-        os.startfile(Filename + ".mp3")
-        # open filename.png
-        os.startfile(Filename + ".png")
-        # open filename.txt
-        os.startfile(Filename + ".txt")
-        # ask user if they want to delete the files
-        keepFiles = input("Do you want to keep the files? (y/n)")
-        if keepFiles == "y":
-            print("files have been kept")
-            # create a new folder and move the files to the new folder
-            os.mkdir(Filename)
-            # move files to new folder 
-            os.rename(Filename + ".mp4", Filename+"/" + Filename + ".mp4")
-            os.rename(Filename + ".mp3", Filename+"/" + Filename + ".mp3")
-            os.rename(Filename + ".png", Filename+"/"  + Filename + ".png")
-            os.rename(Filename + ".txt", Filename+"/"  + Filename + ".txt")
-        elif keepFiles == "n":
-            print("files have been deleted")
-            # delete files
-            os.remove(Filename + ".mp4")
-            os.remove(Filename + ".mp3")
-            os.remove(Filename + ".png")
-            os.remove(Filename + ".txt")
-            print("files have been deleted")
-        else:
-            print("invalid input")
-            chosseFiles()
+        print("files have been kept")
+        # create a new folder and move the files to the new folder
+        os.mkdir(Filename)
+        # move files to new folder 
+        os.rename(Filename + ".mp4", Filename+"/" + Filename + ".mp4")
+        os.rename(Filename + ".mp3", Filename+"/" + Filename + ".mp3")
+        os.rename(Filename + ".png", Filename+"/"  + Filename + ".png")
+        os.rename(Filename + ".txt", Filename+"/"  + Filename + ".txt")
 
 
 def screenshot(name):
+    post = name
     name = name.replace('https://reddit.com/r/', '')
     name = name.replace('/', '_')
     driver = webdriver.Chrome('chromedriver.exe') 
@@ -143,18 +126,17 @@ def screenshot(name):
     driver.save_screenshot(name + ".png")
     print("screenshot saved")
 
-subreddit = input("Enter subreddit: ")
-redditPosts = findPost(subreddit)
-for post in redditPosts:
-    if findComments(post):
-        print("no post found")
-    else:
-        txtToSpeech(post)
-        randomVideo(post)
-        screenshot(post)
-print("Done saving posts to files")
+def searchSubReddit(subreddit):
+    redditPosts = findPost(subreddit)
+    for post in redditPosts:
+        if findComments(post):
+            print("no post found")
+        else:
+            txtToSpeech(post)
+            randomVideo(post)
+            screenshot(post)
 
-# We have now generated a bunch of text files and mp3 files and choseen our video files
-# Now we need to combine them into one video file
-chosseFiles()
+subReddits = input("Enter the subreddit you want to search: ")
+searchSubReddit(subReddits)
+savefile()
 print("Now you can edit them up together for your video")

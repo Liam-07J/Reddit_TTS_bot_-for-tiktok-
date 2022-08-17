@@ -15,7 +15,6 @@ To add more video files to the bot, just add them to the array of videos in "mai
 Additionaly the text to speech feature can give back a 429 error if the bot is used too much, so you could change your i.p address to a different one using a vpn
 
 Furture:
-    Allow user to enter an array of subreddits to download from
     Fix bug on line 27 (not allowing site to be loaded)
-    Automatically move all "saved" files to other folder named after the post and subreddit
     Make the screenshots higher quality
+    Fix all the bugs with the text to speech feature
